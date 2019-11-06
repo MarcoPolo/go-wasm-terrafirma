@@ -42,7 +42,7 @@ const HostCallStatusInvalid = 1
 
 //export hostcall_init_mm
 func hostcall_init_mm(context unsafe.Pointer, x int32, y int32) {
-	fmt.Println("init_mm")
+	// fmt.Println("init_mm")
 	// Noop
 }
 

@@ -3,7 +3,9 @@ package terrafirma
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http/httptest"
+	"os"
 	"strings"
 	"testing"
 
@@ -44,4 +46,22 @@ func TestGet(t *testing.T) {
 	fmt.Println("Response Code", resp.Status)
 	body, _ := ioutil.ReadAll(resp.Body)
 	fmt.Println("Response body", string(body))
+}
+
+func BenchmarkHello(b *testing.B) {
+	testReq := httptest.NewRequest("GET", "https://marcopolo.io/wasm", nil)
+	log.SetOutput(ioutil.Discard)
+	os.Stdout, _ = os.Open(os.DevNull)
+
+	for i := 0; i < b.N; i++ {
+		recorder := httptest.NewRecorder()
+		fmt.Sprintf("hello")
+		bytes, _ := wasm.ReadBytes("hello.wasm")
+		imports := GetImports()
+
+		WasmHandler(bytes, imports, recorder, testReq)
+		resp := recorder.Result()
+		body, _ := ioutil.ReadAll(resp.Body)
+		fmt.Println("Response body", string(body))
+	}
 }

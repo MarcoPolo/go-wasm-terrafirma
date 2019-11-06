@@ -2,7 +2,6 @@ package terrafirma
 
 // #include <stdlib.h>
 //
-// extern int32_t sum(void *context, int32_t x, int32_t y);
 // extern void hostcall_init_mm(void *context, int32_t x, int32_t y);
 // extern void hostcall_panic_hook(void *context, int32_t x, int32_t y);
 // extern int32_t hostcall_resp_set_header(void *context, int32_t a, int32_t b, int32_t c, int32_t d, int32_t e);
@@ -40,11 +39,6 @@ const HostCallStatusOk = 0
 const HostCallStatusInvalid = 1
 
 // TODO use u32 when looking at memory
-
-//export sum
-func sum(context unsafe.Pointer, x int32, y int32) int32 {
-	return x + y
-}
 
 //export hostcall_init_mm
 func hostcall_init_mm(context unsafe.Pointer, x int32, y int32) {
@@ -437,7 +431,7 @@ func GetImports() *wasm.Imports {
 	imports.Namespace("env")
 	var err error
 
-	imports, err = imports.Append("sum", sum, C.sum)
+	// imports, err = imports.Append("sum", sum, C.sum)
 	if err != nil {
 		fmt.Printf("Err! %v\n", err)
 	}

@@ -159,15 +159,17 @@ func writeBytes(memory *wasm.Memory, malloc func(...interface {}) (wasm.Value, e
 
 func readGuestSlicesAsString(memory *wasm.Memory, values_slice_ptr, values_slice_len int32) []string {
 	output := []string{}
-	for i := int32(0); i <= values_slice_len; i++ {
+	fmt.Println("Values", values_slice_len)
+	for i := int32(0); i < values_slice_len; i++ {
 		start := values_slice_ptr + i*8
 		var slice_start int32
 		var slice_len int32
 		buf := bytes.NewReader(memory.Data()[start:start+4])
 		binary.Read(buf, binary.LittleEndian, &slice_start)
 		buf = bytes.NewReader(memory.Data()[start+4:start+8])
+		fmt.Println("Slice start", slice_start, slice_len)
 		binary.Read(buf, binary.LittleEndian, &slice_len)
-		s := string(memory.Data()[slice_start:slice_len])
+		s := string(memory.Data()[slice_start:slice_start+slice_len])
 		output = append(output, s)
 	}
 	return output
@@ -336,6 +338,7 @@ func hostcall_req_set_header(
 	reqRespWrapper := ReqContextMap[*(*int)(instanceContext.Data())]
 	request := reqRespWrapper.Request[req]
 	headerKey := memory.Data()[name_ptr:name_ptr+name_len]
+	fmt.Println("here")
 	headerVals := readGuestSlicesAsString(memory, values_slice_ptr, values_slice_len)
 	fmt.Println("Setting headers to", headerVals)
 	request.Header.Set(string(headerKey), strings.Join(headerVals, ";"))

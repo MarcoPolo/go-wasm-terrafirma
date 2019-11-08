@@ -47,10 +47,16 @@ func hostcall_init_mm(context unsafe.Pointer, x int32, y int32) {
 }
 
 //export hostcall_resp_set_header
-func hostcall_resp_set_header(context unsafe.Pointer, a, b, c, d, e int32) int32 {
+func hostcall_resp_set_header(context unsafe.Pointer, resp, name_ptr, name_len, values_ptr_p, values_len_p int32) int32 {
+	fmt.Printf("resp set header")
 	instanceContext := wasm.IntoInstanceContext(context);
-	reqRespWrapper := (*ReqRespWrapper)(instanceContext.Data())
-	fmt.Printf("set header %v\n", reqRespWrapper)
+	memory := instanceContext.Memory()
+	reqRespWrapper := ReqContextMap[*(*int)(instanceContext.Data())]
+	response := reqRespWrapper.ResponseWriter[resp]
+	headerKey := memory.Data()[name_ptr:name_ptr+name_len]
+	headerVals := readGuestSlicesAsString(memory, values_ptr_p, values_len_p)
+	fmt.Println("Setting headers to", headerVals)
+	response.Header().Set(string(headerKey), strings.Join(headerVals, ";"))
 	return 0
 }
 

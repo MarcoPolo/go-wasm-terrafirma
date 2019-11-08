@@ -26,9 +26,18 @@ type ReqRespWrapper struct {
 var ReqContextMap = map[int]*ReqRespWrapper{}
 var currentId = 0
 
-func WasmHandler(wasmBytes []byte, imports *wasm.Imports, w http.ResponseWriter, r *http.Request) {
+type WasmHandler struct {
+	wasmBytes []byte
+	imports   *wasm.Imports
+}
+
+func NewWasmHandler(wasmBytes []byte, imports *wasm.Imports) WasmHandler {
+	return WasmHandler{wasmBytes: wasmBytes, imports: imports}
+}
+
+func (h WasmHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Instantiates the WebAssembly module.
-	instance, err := wasm.NewInstanceWithImports(wasmBytes, imports)
+	instance, err := wasm.NewInstanceWithImports(h.wasmBytes, h.imports)
 	if err != nil {
 		fmt.Printf("Err in creating! %v\n", err)
 	}
